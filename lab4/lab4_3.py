@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
-from utils import progress_bar, getDevice, plot_losses, train, validate, training_loop, train_w_timing
+from utils import progress_bar, getDevice, plot_losses, train, validate, training_loop, train_w_timing, getnumGPUs
 from time import perf_counter
 from args import args
 from resnet import ResNet18
@@ -45,19 +45,22 @@ def main(args):
 
     device = getDevice()
     print('[INFO]: Device:', device)
+    numgpus = getnumGPUs()
+    print('[INFO]: Number of GPUs:', numgpus)
     # Model
     print('==> Building model..')
     model = ResNet18()
+    model = torch.nn.DataParallel(model, device_ids=range(numgpus))
     model = model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-    for epoch in range(2):
+    for epoch in range(5):
         train_loss, train_time = train_w_timing(model, criterion, optimizer, trainloader, device, scheduler=scheduler)
     
-    print(train_time)
+    print(train_loss)
 if __name__ == '__main__':
     args = args().parse()
     main(args)

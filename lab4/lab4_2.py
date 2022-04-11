@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
-from utils import progress_bar, getDevice, plot_losses, train, validate, training_loop, train_w_timing
+from utils import progress_bar, getDevice, plot_losses, train, validate, training_loop, train_w_timing, getnumGPUs
 from time import perf_counter
 from args import args
 from resnet import ResNet18
@@ -45,9 +45,12 @@ def main(args):
 
     device = getDevice()
     print('[INFO]: Device:', device)
+    numgpus = getnumGPUs()
+    print('[INFO]: Number of GPUs:', numgpus)
     # Model
     print('==> Building model..')
     model = ResNet18()
+    model = torch.nn.DataParallel(model, device_ids=range(numgpus))
     model = model.to(device)
 
     criterion = nn.CrossEntropyLoss()

@@ -135,6 +135,12 @@ def buildDataset_Linear(x, y):
 def getDevice():
     return 'cuda' if torch.cuda.is_available() else 'cpu'
 
+def getnumGPUs():
+    if torch.cuda.is_available():
+        return torch.cuda.device_count()
+    else:
+        return 0
+        
 def get_accuracy(model, data_loader, device):
     '''
     Function for computing the accuracy of the predictions over the entire data_loader

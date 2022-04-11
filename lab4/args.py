@@ -13,7 +13,7 @@ class args(object):
 		self.parser.add_argument('--optim', default='sgd')
 		self.parser.add_argument('--num_workers', default=2, type=int, help='number of workers of train and test loader')
 		self.parser.add_argument('--data_path', default='./data')
-		self.parser.add_argument('--cpu_only', action='store_true', help='Use GPU by default without this option.')
+		# self.parser.add_argument('--cpu_only', action='store_true', help='Use GPU by default without this option.')
 		self.parser.add_argument('--batch_size', default=32, type=int, help='Batch size.')
 
 	def parse(self):
