@@ -15,7 +15,6 @@ from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 from datetime import datetime 
 from torchsummary import summary
-from time import perf_counter
 
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''
@@ -135,12 +134,6 @@ def buildDataset_Linear(x, y):
 def getDevice():
     return 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def getnumGPUs():
-    if torch.cuda.is_available():
-        return torch.cuda.device_count()
-    else:
-        return 0
-        
 def get_accuracy(model, data_loader, device):
     '''
     Function for computing the accuracy of the predictions over the entire data_loader
@@ -188,23 +181,19 @@ def plot_losses(train_losses, valid_losses):
     # change the plot style to default
     plt.style.use('default')
 
-def train(model, criterion, optimizer, dataloader, device, printProgress=True, printParam=False, scheduler=None):
+def train(model, criterion, optimizer, dataloader, device, printProgress=True, printParam=False):
     # print('\nEpoch: %d' % epoch)
     model.train()
     train_loss = 0
     correct = 0
     total = 0
-
     for batch_idx, (inputs, targets) in enumerate(dataloader):
-        
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
-        if not scheduler:
-            scheduler.step()
 
         train_loss += loss.item()
         _, predicted = outputs.max(1)
@@ -218,46 +207,8 @@ def train(model, criterion, optimizer, dataloader, device, printProgress=True, p
             for param in model.parameters():
                 print(param)
         
-        
-    return train_loss / len(dataloader.dataset)
-    return model, train_loss / len(dataloader.dataset)
-
-def train_w_timing(model, criterion, optimizer, dataloader, device, printProgress=True, printParam=False, scheduler=None):
-    # print('\nEpoch: %d' % epoch)
-    model.train()
-    train_loss = 0
-    correct = 0
-    total = 0
-
-    time_training = 0
-    for batch_idx, (inputs, targets) in enumerate(dataloader):
-        time_start = perf_counter()
-        inputs, targets = inputs.to(device), targets.to(device)
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
-        loss.backward()
-        optimizer.step()
-        if not scheduler:
-            scheduler.step()
-        time_end = perf_counter()
-        time_training += time_end - time_start
-
-        train_loss += loss.item()
-        _, predicted = outputs.max(1)
-        total += targets.size(0)
-        correct += predicted.eq(targets).sum().item()
-
-        if printProgress:
-            progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                        % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        if printParam:
-            for param in model.parameters():
-                print(param)
-        
-        
-    return train_loss / len(dataloader.dataset), time_training
-    return model, train_loss / len(dataloader.dataset)
+        return train_loss / len(dataloader.dataset)
+        return model, train_loss / len(dataloader.dataset)
 
 def validate(model, criterion, dataloader, device, printProgress=True):
     model.eval()
