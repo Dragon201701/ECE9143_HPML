@@ -10,11 +10,13 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
-from utils import progress_bar, getDevice, plot_losses, train, validate, training_loop, train_w_timing
+from utils import getDevice, plot_losses, train, validate, training_loop, train_w_timing
 from time import perf_counter
 from args import args
-
+import json
 from resnet import ResNet50
+
+from datetime import datetime
 
 def main(args):
     print(args)
@@ -66,13 +68,25 @@ def main(args):
     valid_acc = 0
     train_time_tot = 0
     epoch = 0
+    result_json = {}
+    train_losses = []
+    valid_losses = []
+    now = datetime.now()
     while valid_acc < 0.92:
-        train_loss, train_time = train_w_timing(model, criterion, optimizer, trainloader, device, scheduler=scheduler)
+        train_loss, train_time = train_w_timing(model, criterion, optimizer, trainloader, device, scheduler=scheduler, printProgress=False)
         valid_loss, valid_acc = validate(model, criterion, validloader, device)
         train_time_tot += train_time
         epoch += 1
-    
+        train_losses.append(train_loss)
+        valid_losses.append(valid_loss)
     print('Total training time: ', train_time_tot, 'Epoch: ', epoch)
+    result_json['train_time_tot'] = train_time_tot
+    result_json['epoch'] = epoch
+    result_json['train_losses'] = train_losses
+    result_json['valid_losses'] = valid_losses
+    result_fname = 'start_' + now.strftime("%H_%M_%S")
+    with open(result_fname, 'w') as outfile:
+        json.dump(result_json, outfile)
 if __name__ == '__main__':
     args = args().parse()
     main(args)

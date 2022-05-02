@@ -46,54 +46,54 @@ def init_params(net):
             if m.bias:
                 init.constant(m.bias, 0)
 
-_, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
+# _, term_width = os.popen('stty size', 'r').read().split()
+# term_width = int(term_width)
 
-TOTAL_BAR_LENGTH = 65.
-last_time = time.time()
-begin_time = last_time
-def progress_bar(current, total, msg=None):
-    global last_time, begin_time
-    if current == 0:
-        begin_time = time.time()  # Reset for new bar.
+# TOTAL_BAR_LENGTH = 65.
+# last_time = time.time()
+# begin_time = last_time
+# def progress_bar(current, total, msg=None):
+#     global last_time, begin_time
+#     if current == 0:
+#         begin_time = time.time()  # Reset for new bar.
 
-    cur_len = int(TOTAL_BAR_LENGTH*current/total)
-    rest_len = int(TOTAL_BAR_LENGTH - cur_len) - 1
+#     cur_len = int(TOTAL_BAR_LENGTH*current/total)
+#     rest_len = int(TOTAL_BAR_LENGTH - cur_len) - 1
 
-    sys.stdout.write(' [')
-    for i in range(cur_len):
-        sys.stdout.write('=')
-    sys.stdout.write('>')
-    for i in range(rest_len):
-        sys.stdout.write('.')
-    sys.stdout.write(']')
+#     sys.stdout.write(' [')
+#     for i in range(cur_len):
+#         sys.stdout.write('=')
+#     sys.stdout.write('>')
+#     for i in range(rest_len):
+#         sys.stdout.write('.')
+#     sys.stdout.write(']')
 
-    cur_time = time.time()
-    step_time = cur_time - last_time
-    last_time = cur_time
-    tot_time = cur_time - begin_time
+#     cur_time = time.time()
+#     step_time = cur_time - last_time
+#     last_time = cur_time
+#     tot_time = cur_time - begin_time
 
-    L = []
-    L.append('  Step: %s' % format_time(step_time))
-    L.append(' | Tot: %s' % format_time(tot_time))
-    if msg:
-        L.append(' | ' + msg)
+#     L = []
+#     L.append('  Step: %s' % format_time(step_time))
+#     L.append(' | Tot: %s' % format_time(tot_time))
+#     if msg:
+#         L.append(' | ' + msg)
 
-    msg = ''.join(L)
-    sys.stdout.write(msg)
-    for i in range(term_width-int(TOTAL_BAR_LENGTH)-len(msg)-3):
-        sys.stdout.write(' ')
+#     msg = ''.join(L)
+#     sys.stdout.write(msg)
+#     for i in range(term_width-int(TOTAL_BAR_LENGTH)-len(msg)-3):
+#         sys.stdout.write(' ')
 
-    # Go back to the center of the bar.
-    for i in range(term_width-int(TOTAL_BAR_LENGTH/2)+2):
-        sys.stdout.write('\b')
-    sys.stdout.write(' %d/%d ' % (current+1, total))
+#     # Go back to the center of the bar.
+#     for i in range(term_width-int(TOTAL_BAR_LENGTH/2)+2):
+#         sys.stdout.write('\b')
+#     sys.stdout.write(' %d/%d ' % (current+1, total))
 
-    if current < total-1:
-        sys.stdout.write('\r')
-    else:
-        sys.stdout.write('\n')
-    sys.stdout.flush()
+#     if current < total-1:
+#         sys.stdout.write('\r')
+#     else:
+#         sys.stdout.write('\n')
+#     sys.stdout.flush()
 
 def format_time(seconds):
     days = int(seconds / 3600/24)
@@ -201,12 +201,12 @@ def train(model, criterion, optimizer, dataloader, device, printProgress=True, p
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        if printProgress:
-            progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                        % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        if printParam:
-            for param in model.parameters():
-                print(param)
+        # if printProgress:
+        #     progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+        #                 % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        # if printParam:
+        #     for param in model.parameters():
+        #         print(param)
         
         return train_loss / len(dataloader.dataset)
         return model, train_loss / len(dataloader.dataset)
@@ -237,12 +237,15 @@ def train_w_timing(model, criterion, optimizer, dataloader, device, printProgres
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        if printProgress:
-            progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                        % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        if printParam:
-            for param in model.parameters():
-                print(param)
+        # if printProgress:
+        #     progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+        #                 % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        # if printParam:
+        #     for param in model.parameters():
+        #         print(param)
+        
+    print('Train Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
         
         
     return train_loss / len(dataloader.dataset), time_training
@@ -264,10 +267,11 @@ def validate(model, criterion, dataloader, device, printProgress=True):
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
 
-            if printProgress:
-                progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                            % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
-    
+            # if printProgress:
+            #     progress_bar(batch_idx, len(dataloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            #                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+    print('Validate Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
     return test_loss / len(dataloader.dataset), correct/total
 
 def training_loop(model, criterion, optimizer, train_loader, valid_loader, epochs, device, print_every=1):
